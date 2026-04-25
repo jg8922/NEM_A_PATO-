@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEM A PATO! ONLINE</title>
+    <title>NEM A PATO!</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -13,26 +13,20 @@
             --primary: #ffcc00; --secondary: #333; --danger: #ff4444;
             --success: #00c851; --bg: #1a1a1a; --card: #2a2a2a;
         }
-
         body { margin: 0; font-family: 'Arial Black', sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; transition: background 0.1s; }
         .screen { display: none; flex-direction: column; align-items: center; width: 95%; max-width: 550px; background: var(--card); padding: 25px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); text-align: center; animation: slideUp 0.4s ease-out; max-height: 90vh; overflow-y: auto; }
         .active { display: flex; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
         h1 { font-size: 2.5rem; color: var(--primary); text-shadow: 3px 3px 0 var(--secondary); margin-bottom: 20px; }
         button { padding: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; border: none; border-radius: 12px; transition: 0.2s; text-transform: uppercase; width: 100%; margin-bottom: 10px; flex-shrink: 0; }
         .btn-main { background: var(--primary); color: #000; }
         .btn-pato { background: var(--danger); color: white; font-size: 1.5rem; }
         .btn-kick { background: var(--danger); color: white; padding: 2px 8px; font-size: 0.7rem; width: auto; margin-left: 10px; border-radius: 5px; }
-
         .how-to-play { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; margin-top: 20px; text-align: left; font-family: 'Arial', sans-serif; font-size: 0.85rem; border: 1px solid #444; line-height: 1.4; }
-        .how-to-play h3 { color: var(--primary); margin-top: 0; text-transform: uppercase; font-family: 'Arial Black'; }
-
         input { padding: 15px; margin: 10px 0; border-radius: 12px; border: 3px solid #444; background: #111; color: white; width: 100%; text-align: center; font-size: 2rem; box-sizing: border-box; }
         #turn-banner { width: 100%; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; color: #000; }
         .your-turn { background: var(--success); box-shadow: 0 0 15px var(--success); }
         .others-turn { background: var(--primary); }
-        
         #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 100; justify-content: center; align-items: center; }
         .reveal-card { background: var(--card); border: 4px solid var(--primary); padding: 25px; border-radius: 25px; max-width: 420px; width: 90%; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -41,7 +35,6 @@
         .q-option { background: #3d3d3d; color: white; padding: 14px; border-radius: 12px; font-size: 0.95rem; text-align: left; cursor: pointer; border: 2px solid transparent; margin-bottom: 8px; width: 100%; }
         .q-option:hover { border-color: var(--primary); background: #4a4a4a; }
         .flash-effect { background: white !important; }
-        #placar { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; }
         .placar-item { background: #222; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; font-size: 0.8rem; border: 1px solid #444; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
         .shake-error { animation: shake 0.3s; border-color: var(--danger) !important; }
@@ -71,10 +64,10 @@
         <div class="how-to-play">
             <h3>Como Jogar 🦆</h3>
             <ul>
-                <li>O Escolhedor sorteia uma pergunta numérica.</li>
-                <li>Os jogadores devem chutar números cada vez maiores.</li>
-                <li>Duvide de um chute abusivo apertando <b>NEM A PATO!</b></li>
-                <li>Quem errar acumula patos. Com 5 patos, você sai!</li>
+                <li>Um jogador sorteia uma pergunta.</li>
+                <li>Todos chutam números crescentes.</li>
+                <li>Se achar que mentiram, aperte o botão vermelho!</li>
+                <li>Errou o chute ou a dúvida? Ganha um pato. 5 patos = Fora!</li>
             </ul>
         </div>
     </div>
@@ -107,7 +100,7 @@
         <div id="turn-banner">AGUARDANDO...</div>
         <div id="display-tema" style="font-size: 1.5rem; color: var(--primary); margin: 10px 0; font-weight: bold;"></div>
         <div id="choice-area" style="display:none; width: 100%;">
-            <p>Escolha o desafio da rodada:</p>
+            <p>Escolha o desafio:</p>
             <div id="picker-list"></div>
         </div>
         <div id="play-area" style="display:none; width: 100%;">
@@ -116,11 +109,11 @@
                 <b id="display-val" style="font-size: 3.5rem; color: var(--primary);">-</b>
                 <p>Por: <span id="display-player" style="color: var(--primary);">Ninguém</span></p>
             </div>
-            <input type="number" id="input-val" placeholder="0" onkeydown="if(['e','E','+','-',','].includes(event.key)) event.preventDefault();">
+            <input type="number" id="input-val" placeholder="0">
             <button id="btn-send" class="btn-main" onclick="sendNumber()">ENVIAR NÚMERO</button>
             <button class="btn-pato" id="btn-pato-id" onclick="clickPato()">NEM A PATO!</button>
         </div>
-        <div id="placar"></div>
+        <div id="placar" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px;"></div>
     </div>
 
     <div id="screen-rank" class="screen">
@@ -142,7 +135,6 @@
         
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
         let myData = { nick: '', roomCode: '', isOwner: false };
         let deckLocal = {};
 
@@ -161,14 +153,14 @@
                     if (!deckLocal[tema]) deckLocal[tema] = [];
                     deckLocal[tema].push({ q: m[2], a: parseInt(m[3]), c: m[4] });
                 }
-                alert("Cartas carregadas!");
+                alert("Arquivo carregado!");
             };
             reader.readAsText(e.target.files[0]);
         });
 
         function logicCreateRoom() {
             const nick = document.getElementById('create-nick').value.trim();
-            if(!nick || Object.keys(deckLocal).length === 0) return alert("Nickname e TXT!");
+            if(!nick || Object.keys(deckLocal).length === 0) return alert("Nick e TXT!");
             const code = Math.random().toString(36).substring(2, 7).toUpperCase();
             myData = { nick, roomCode: code, isOwner: true };
             db.ref('rooms/' + code).set({
@@ -179,9 +171,10 @@
         function logicJoinRoom() {
             const nick = document.getElementById('join-nick').value.trim();
             const code = document.getElementById('join-code').value.trim().toUpperCase();
+            if(!nick || !code) return alert("Preencha tudo!");
             db.ref('rooms/' + code).once('value', snapshot => {
                 const room = snapshot.val();
-                if(!room) return alert("Sala não existe!");
+                if(!room) return alert("Sala não encontrada!");
                 const players = room.players || [];
                 players.push({nick});
                 db.ref('rooms/' + code + '/players').set(players).then(() => {
@@ -205,7 +198,6 @@
             const me = room.players.find(p => p.nick === myData.nick);
             if(!me && myData.nick !== '') return location.reload();
 
-            // Áudio e Flash
             if(room.playAudio === true) {
                 document.getElementById('duck-sound').play();
                 document.body.classList.add('flash-effect');
@@ -213,7 +205,6 @@
                 if(myData.isOwner) db.ref('rooms/' + myData.roomCode + '/playAudio').set(false);
             }
 
-            // Lobby
             if(room.status === 'waiting') {
                 document.getElementById('player-list-lobby').innerHTML = room.players.map(p => `
                     <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
@@ -222,7 +213,6 @@
                 `).join('');
             }
 
-            // Modal
             const modal = document.getElementById('modal-overlay');
             if(room.modalOpen) {
                 document.getElementById('modal-last-val').innerText = room.modalData.lastVal;
@@ -234,26 +224,23 @@
                 modal.style.display = 'flex';
             } else { modal.style.display = 'none'; }
 
-            // Início do Jogo (Força troca de tela para todos)
             if(room.status === 'playing') {
                 if(!document.getElementById('screen-game').classList.contains('active')) goTo('screen-game');
-                
-                const banner = document.getElementById('turn-banner');
                 const chooserNick = room.players[room.chooserIdx].nick;
                 const isChooser = (myData.nick === chooserNick);
                 document.getElementById('display-tema').innerText = "TEMA: " + room.currentTema;
 
                 if(room.phase === 'choosing') {
-                    banner.innerText = isChooser ? "SUA VEZ DE ESCOLHER!" : `AGUARDANDO ${chooserNick.toUpperCase()}...`;
-                    banner.className = isChooser ? "your-turn" : "others-turn";
+                    document.getElementById('turn-banner').innerText = isChooser ? "SUA VEZ DE ESCOLHER!" : `AGUARDANDO ${chooserNick.toUpperCase()}...`;
+                    document.getElementById('turn-banner').className = isChooser ? "your-turn" : "others-turn";
                     document.getElementById('choice-area').style.display = 'block';
                     document.getElementById('play-area').style.display = 'none';
                     if(isChooser) document.getElementById('picker-list').innerHTML = (room.cardQuestions || []).map((q, i) => `<div class="q-option" onclick="selectQuestion(${i})">${i+1}. ${q.q}</div>`).join('');
                     else document.getElementById('picker-list').innerHTML = "";
                 } else {
                     const isMyTurn = (room.players[room.turnIndex].nick === myData.nick);
-                    banner.innerText = isMyTurn ? "SUA VEZ!" : `VEZ DE: ${room.players[room.turnIndex].nick.toUpperCase()}`;
-                    banner.className = isMyTurn ? "your-turn" : "others-turn";
+                    document.getElementById('turn-banner').innerText = isMyTurn ? "SUA VEZ!" : `VEZ DE: ${room.players[room.turnIndex].nick.toUpperCase()}`;
+                    document.getElementById('turn-banner').className = isMyTurn ? "your-turn" : "others-turn";
                     document.getElementById('choice-area').style.display = 'none';
                     document.getElementById('play-area').style.display = 'block';
                     document.getElementById('question-text').innerText = room.currentCard.q;
@@ -265,16 +252,13 @@
                     if(room.lastP === myData.nick || room.lastVal === 0) { patoBtn.disabled = true; patoBtn.style.opacity = "0.3"; }
                     else { patoBtn.disabled = false; patoBtn.style.opacity = "1"; }
                 }
-                
-                document.getElementById('placar').innerHTML = room.players.map(p => `
-                    <div class="placar-item">${p.nick}: ${room.scores ? (room.scores[p.nick] || 0) : 0}🦆 ${myData.isOwner && p.nick !== myData.nick ? `<button class="btn-kick" style="padding:0 4px;" onclick="kickPlayer('${p.nick}')">×</button>` : ''}</div>
-                `).join('');
+                document.getElementById('placar').innerHTML = room.players.map(p => `<div class="placar-item">${p.nick}: ${room.scores ? (room.scores[p.nick] || 0) : 0}🦆</div>`).join('');
             }
 
             if(room.status === 'finished') {
                 goTo('screen-rank');
                 const sorted = Object.entries(room.scores || {}).sort((a,b) => a[1] - b[1]);
-                document.getElementById('rank-list').innerHTML = sorted.map(([n,s], i) => `<div style="padding:15px; margin:8px; background:#333; border-radius:15px; border:2px solid ${i==0?'var(--primary)':'#444'}">${i+1}º ${n} — ${s} Patos</div>`).join('');
+                document.getElementById('rank-list').innerHTML = sorted.map(([n,s], i) => `<div style="padding:15px; margin:8px; background:#333; border-radius:15px;">${i+1}º ${n} — ${s} Patos</div>`).join('');
             }
         }
 
@@ -285,13 +269,10 @@
                 room.scores = {};
                 room.players.forEach(p => room.scores[p.nick] = 0);
                 room.chooserIdx = Math.floor(Math.random() * room.players.length); 
-                
-                // Sorteia tema e cartas aqui para garantir que todos recebam o mesmo
                 const temas = Object.keys(room.deck).filter(t => room.deck[t].length >= 5);
                 room.currentTema = temas[Math.floor(Math.random() * temas.length)];
                 room.cardQuestions = room.deck[room.currentTema].sort(() => 0.5 - Math.random()).slice(0, 5);
                 room.phase = 'choosing';
-                
                 db.ref('rooms/' + myData.roomCode).set(room);
             });
         }
@@ -331,32 +312,24 @@
                 const real = room.currentCard.a;
                 const chutador = room.lastP;
                 let perdedor = (room.lastVal > real) ? chutador : myData.nick;
-
                 room.playAudio = true;
                 room.modalOpen = true;
                 room.modalData = { title: (room.lastVal > real) ? "ERROU! PASSOU DO LIMITE" : "ACERTOU! DUVIDOU ERRADO", answer: real, curio: room.currentCard.c, lastVal: room.lastVal, lastP: chutador, patoP: myData.nick };
-                
                 room.scores[perdedor] = (room.scores[perdedor] || 0) + 1;
                 if(room.scores[perdedor] >= 5) room.players = room.players.filter(p => p.nick !== perdedor);
-                
                 if(room.players.length <= 1) room.status = 'finished';
                 else {
                     room.chooserIdx = (room.chooserIdx + 1) % room.players.length;
                     const temas = Object.keys(room.deck).filter(t => room.deck[t].length >= 5);
-                    if (temas.length === 0) room.status = 'finished';
-                    else {
-                        room.currentTema = temas[Math.floor(Math.random() * temas.length)];
-                        room.cardQuestions = room.deck[room.currentTema].sort(() => 0.5 - Math.random()).slice(0, 5);
-                        room.phase = 'choosing';
-                    }
+                    room.currentTema = temas[Math.floor(Math.random() * temas.length)];
+                    room.cardQuestions = room.deck[room.currentTema].sort(() => 0.5 - Math.random()).slice(0, 5);
+                    room.phase = 'choosing';
                 }
                 db.ref('rooms/' + myData.roomCode).set(room);
             });
         }
 
-        function closeModal() {
-            db.ref('rooms/' + myData.roomCode + '/modalOpen').set(false);
-        }
+        function closeModal() { db.ref('rooms/' + myData.roomCode + '/modalOpen').set(false); }
 
         function kickPlayer(nick) {
             db.ref('rooms/' + myData.roomCode).once('value', snapshot => {
