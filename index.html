@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEM A PATO!</title>
+    <title>NEM A PATO! ONLINE</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -64,9 +64,9 @@
         <div class="how-to-play">
             <h3>Como Jogar 🦆</h3>
             <ul>
-                <li>Um jogador sorteia uma pergunta.</li>
-                <li>Todos chutam números crescentes.</li>
-                <li>Se achar que mentiram, aperte o botão vermelho!</li>
+                <li>O Escolhedor da vez sorteia uma pergunta.</li>
+                <li>Todos chutam números cada vez maiores.</li>
+                <li>Se achar que o chute passou do valor real, aperte o botão vermelho!</li>
                 <li>Errou o chute ou a dúvida? Ganha um pato. 5 patos = Fora!</li>
             </ul>
         </div>
@@ -100,7 +100,7 @@
         <div id="turn-banner">AGUARDANDO...</div>
         <div id="display-tema" style="font-size: 1.5rem; color: var(--primary); margin: 10px 0; font-weight: bold;"></div>
         <div id="choice-area" style="display:none; width: 100%;">
-            <p>Escolha o desafio:</p>
+            <p>Escolha o desafio da rodada:</p>
             <div id="picker-list"></div>
         </div>
         <div id="play-area" style="display:none; width: 100%;">
@@ -109,7 +109,7 @@
                 <b id="display-val" style="font-size: 3.5rem; color: var(--primary);">-</b>
                 <p>Por: <span id="display-player" style="color: var(--primary);">Ninguém</span></p>
             </div>
-            <input type="number" id="input-val" placeholder="0">
+            <input type="number" id="input-val" placeholder="0" onkeydown="if(['e','E','+','-',','].includes(event.key)) event.preventDefault();">
             <button id="btn-send" class="btn-main" onclick="sendNumber()">ENVIAR NÚMERO</button>
             <button class="btn-pato" id="btn-pato-id" onclick="clickPato()">NEM A PATO!</button>
         </div>
@@ -133,7 +133,7 @@
             appId: "1:611527572474:web:5c5182a8a68a84d2f7c243"
         };
         
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         let myData = { nick: '', roomCode: '', isOwner: false };
         let deckLocal = {};
@@ -153,14 +153,14 @@
                     if (!deckLocal[tema]) deckLocal[tema] = [];
                     deckLocal[tema].push({ q: m[2], a: parseInt(m[3]), c: m[4] });
                 }
-                alert("Arquivo carregado!");
+                alert("Cartas carregadas!");
             };
             reader.readAsText(e.target.files[0]);
         });
 
         function logicCreateRoom() {
             const nick = document.getElementById('create-nick').value.trim();
-            if(!nick || Object.keys(deckLocal).length === 0) return alert("Nick e TXT!");
+            if(!nick || Object.keys(deckLocal).length === 0) return alert("Nickname e TXT!");
             const code = Math.random().toString(36).substring(2, 7).toUpperCase();
             myData = { nick, roomCode: code, isOwner: true };
             db.ref('rooms/' + code).set({
@@ -258,7 +258,7 @@
             if(room.status === 'finished') {
                 goTo('screen-rank');
                 const sorted = Object.entries(room.scores || {}).sort((a,b) => a[1] - b[1]);
-                document.getElementById('rank-list').innerHTML = sorted.map(([n,s], i) => `<div style="padding:15px; margin:8px; background:#333; border-radius:15px;">${i+1}º ${n} — ${s} Patos</div>`).join('');
+                document.getElementById('rank-list').innerHTML = sorted.map(([n,s], i) => `<div style="padding:15px; margin:8px; background:#333; border-radius:15px; border:2px solid ${i==0?'var(--primary)':'#444'}">${i+1}º ${n} — ${s} Patos</div>`).join('');
             }
         }
 
