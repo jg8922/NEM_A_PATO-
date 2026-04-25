@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEM A PATO!</title>
+    <title>NEM A PATO! ONLINE</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -25,21 +25,8 @@
         .btn-pato { background: var(--danger); color: white; font-size: 1.5rem; }
         .btn-kick { background: var(--danger); color: white; padding: 2px 8px; font-size: 0.7rem; width: auto; margin-left: 10px; border-radius: 5px; }
 
-        /* Estilo da Caixa de Instruções */
-        .how-to-play {
-            background: rgba(0,0,0,0.3);
-            border-radius: 15px;
-            padding: 15px;
-            margin-top: 20px;
-            text-align: left;
-            font-family: 'Arial', sans-serif;
-            font-size: 0.85rem;
-            border: 1px solid #444;
-            line-height: 1.4;
-        }
+        .how-to-play { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; margin-top: 20px; text-align: left; font-family: 'Arial', sans-serif; font-size: 0.85rem; border: 1px solid #444; line-height: 1.4; }
         .how-to-play h3 { color: var(--primary); margin-top: 0; text-transform: uppercase; font-family: 'Arial Black'; }
-        .how-to-play ul { padding-left: 18px; margin-bottom: 0; }
-        .how-to-play li { margin-bottom: 8px; }
 
         input { padding: 15px; margin: 10px 0; border-radius: 12px; border: 3px solid #444; background: #111; color: white; width: 100%; text-align: center; font-size: 2rem; box-sizing: border-box; }
         #turn-banner { width: 100%; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; color: #000; }
@@ -56,6 +43,8 @@
         .flash-effect { background: white !important; }
         #placar { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; }
         .placar-item { background: #222; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; font-size: 0.8rem; border: 1px solid #444; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+        .shake-error { animation: shake 0.3s; border-color: var(--danger) !important; }
     </style>
 </head>
 <body>
@@ -79,15 +68,13 @@
         <h1>NEM A PATO!</h1>
         <button class="btn-main" onclick="goTo('screen-create')">CRIAR SALA</button>
         <button class="btn-main" onclick="goTo('screen-join')">ENTRAR NA SALA</button>
-
         <div class="how-to-play">
             <h3>Como Jogar 🦆</h3>
             <ul>
-                <li><b>Escolha:</b> O Escolhedor da vez sorteia uma pergunta numérica de uma carta com 5 opções.</li>
-                <li><b>O Leilão:</b> Os jogadores devem chutar números cada vez maiores.</li>
-                <li><b>A Dúvida:</b> Se você acha que o último chute passou do valor real da resposta, grite <b>NEM A PATO!</b> apertando o botão vermelho.</li>
-                <li><b>O Ponto:</b> Se quem chutou passou do limite, ele ganha um pato. Se você duvidou de uma verdade, o pato é seu!</li>
-                <li><b>Sobreviva:</b> Quem acumular <b>5 patos</b> é eliminado. O último na mesa vence!</li>
+                <li>O Escolhedor sorteia uma pergunta numérica.</li>
+                <li>Os jogadores devem chutar números cada vez maiores.</li>
+                <li>Duvide de um chute abusivo apertando <b>NEM A PATO!</b></li>
+                <li>Quem errar acumula patos. Com 5 patos, você sai!</li>
             </ul>
         </div>
     </div>
@@ -111,7 +98,7 @@
     <div id="screen-lobby" class="screen">
         <h2>LOBBY</h2>
         <p>CÓDIGO: <b id="lobby-room-code" style="color:var(--primary); font-size: 2rem;">---</b></p>
-        <div id="player-list-lobby"></div>
+        <div id="player-list-lobby" style="width: 100%; margin: 15px 0;"></div>
         <button id="start-btn" class="btn-main" style="display:none" onclick="hostStart()">COMEÇAR</button>
         <button style="background:#444; color:white" onclick="location.reload()">SAIR</button>
     </div>
@@ -143,7 +130,6 @@
     </div>
 
     <script>
-        // CONFIGURAÇÃO DO SEU FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBxkvXpN8eoLhzEJaGr6o1JNgU8CpdPiWc",
             authDomain: "esseemeuamigo-1f262.firebaseapp.com",
@@ -165,7 +151,6 @@
             document.getElementById(id).classList.add('active');
         }
 
-        // LÓGICA DE CARTAS (TXT)
         document.getElementById('cards-file').addEventListener('change', (e) => {
             const reader = new FileReader();
             reader.onload = (ev) => {
@@ -212,8 +197,7 @@
             goTo('screen-lobby');
             db.ref('rooms/' + code).on('value', snapshot => {
                 const room = snapshot.val();
-                if(!room) return;
-                updateUI(room);
+                if(room) updateUI(room);
             });
         }
 
@@ -221,6 +205,7 @@
             const me = room.players.find(p => p.nick === myData.nick);
             if(!me && myData.nick !== '') return location.reload();
 
+            // Áudio e Flash
             if(room.playAudio === true) {
                 document.getElementById('duck-sound').play();
                 document.body.classList.add('flash-effect');
@@ -228,6 +213,7 @@
                 if(myData.isOwner) db.ref('rooms/' + myData.roomCode + '/playAudio').set(false);
             }
 
+            // Lobby
             if(room.status === 'waiting') {
                 document.getElementById('player-list-lobby').innerHTML = room.players.map(p => `
                     <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
@@ -236,6 +222,7 @@
                 `).join('');
             }
 
+            // Modal
             const modal = document.getElementById('modal-overlay');
             if(room.modalOpen) {
                 document.getElementById('modal-last-val').innerText = room.modalData.lastVal;
@@ -247,8 +234,10 @@
                 modal.style.display = 'flex';
             } else { modal.style.display = 'none'; }
 
+            // Início do Jogo (Força troca de tela para todos)
             if(room.status === 'playing') {
-                goTo('screen-game');
+                if(!document.getElementById('screen-game').classList.contains('active')) goTo('screen-game');
+                
                 const banner = document.getElementById('turn-banner');
                 const chooserNick = room.players[room.chooserIdx].nick;
                 const isChooser = (myData.nick === chooserNick);
@@ -259,7 +248,7 @@
                     banner.className = isChooser ? "your-turn" : "others-turn";
                     document.getElementById('choice-area').style.display = 'block';
                     document.getElementById('play-area').style.display = 'none';
-                    if(isChooser) document.getElementById('picker-list').innerHTML = room.cardQuestions.map((q, i) => `<div class="q-option" onclick="selectQuestion(${i})">${i+1}. ${q.q}</div>`).join('');
+                    if(isChooser) document.getElementById('picker-list').innerHTML = (room.cardQuestions || []).map((q, i) => `<div class="q-option" onclick="selectQuestion(${i})">${i+1}. ${q.q}</div>`).join('');
                     else document.getElementById('picker-list').innerHTML = "";
                 } else {
                     const isMyTurn = (room.players[room.turnIndex].nick === myData.nick);
@@ -296,17 +285,15 @@
                 room.scores = {};
                 room.players.forEach(p => room.scores[p.nick] = 0);
                 room.chooserIdx = Math.floor(Math.random() * room.players.length); 
-                drawNewCard(room);
+                
+                // Sorteia tema e cartas aqui para garantir que todos recebam o mesmo
+                const temas = Object.keys(room.deck).filter(t => room.deck[t].length >= 5);
+                room.currentTema = temas[Math.floor(Math.random() * temas.length)];
+                room.cardQuestions = room.deck[room.currentTema].sort(() => 0.5 - Math.random()).slice(0, 5);
+                room.phase = 'choosing';
+                
                 db.ref('rooms/' + myData.roomCode).set(room);
             });
-        }
-
-        function drawNewCard(room) {
-            const temas = Object.keys(room.deck).filter(t => room.deck[t].length >= 5);
-            if (temas.length === 0) { room.status = 'finished'; return; }
-            room.currentTema = temas[Math.floor(Math.random() * temas.length)];
-            room.cardQuestions = room.deck[room.currentTema].sort(() => 0.5 - Math.random()).slice(0, 5);
-            room.phase = 'choosing';
         }
 
         function selectQuestion(idx) {
@@ -355,7 +342,13 @@
                 if(room.players.length <= 1) room.status = 'finished';
                 else {
                     room.chooserIdx = (room.chooserIdx + 1) % room.players.length;
-                    drawNewCard(room);
+                    const temas = Object.keys(room.deck).filter(t => room.deck[t].length >= 5);
+                    if (temas.length === 0) room.status = 'finished';
+                    else {
+                        room.currentTema = temas[Math.floor(Math.random() * temas.length)];
+                        room.cardQuestions = room.deck[room.currentTema].sort(() => 0.5 - Math.random()).slice(0, 5);
+                        room.phase = 'choosing';
+                    }
                 }
                 db.ref('rooms/' + myData.roomCode).set(room);
             });
